@@ -1,25 +1,21 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes, useNavigate, Navigate } from 'react-router-dom';
+// import { useSelector, useDispatch } from 'react-redux';
+// import { increment, decrement, incrementByAmount } from './features/counterSlice';
+import { Button, Typography, Box } from '@mui/material';
+import CreateCM from './components/CurrentMatch/CreateCM/CreateCM';
+import WatchCM from './components/CurrentMatch/WatchCM/WatchCM';
+import MatchResults from './components/MatchResults/MatchResults';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <Routes>
+        <Route path="/" element={<WatchCM />} />
+        <Route path="/create" element={<CreateCM />} />
+        <Route path="/results" element={<MatchResults />} />
+      </Routes>
+    </Box>
   );
 }
 
