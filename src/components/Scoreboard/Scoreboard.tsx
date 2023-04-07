@@ -1,46 +1,102 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Typography, Box, Container } from '@mui/material';
-// import { increment, decrement, incrementByAmount } from '../../features/counterSlice';
-import { blue, brown } from '@mui/material/colors';
+import { setPeriod as setPeriodStore, setFirstName as setFirstNameStore, setSecondName as setSecondNameStore } from '../../features/matchSlice';
+import { blue } from '@mui/material/colors';
+import api from '../../utils/api';
 
 function Scoreboard() {
-    // const dispatch = useDispatch();   // хук, который отправляет действия в store
-    const firstCommandScore = useSelector((state: any) => state.counter.firstCommandScore);   // хук, который достает state из store
-    const secondCommandScore = useSelector((state: any) => state.counter.secondCommandScore);
-    const period = useSelector((state: any) => state.counter.period);
-    const commands = useSelector((state: any) => state);
     const backColor = blue[300];
-    useSelector((state: any) => {
-        console.log(state);
-    })
+
+    const dispatch = useDispatch();
+
+    const commandsScoreStore = useSelector((state: any) => {
+        return {
+            firstScore: state.matchState.firstCommandScore,
+            secondScore: state.matchState.secondCommandScore,
+        }
+    });
+    const periodStore = useSelector((state: any) => state.matchState.period);
+    const commandsNamesStore = useSelector((state: any) => {
+        return {
+            firstName: state.matchState.firstCommandName,
+            secondName: state.matchState.secondCommandName,
+        }
+    });
+    const store = useSelector((state: any) => state.matchState)
+
+    const [commandsNames, setCommandsNames] = useState(commandsNamesStore);
+    const [commandsScores, setCommandsScores] = useState(commandsScoreStore);
+    const [period, setPeriod] = useState(periodStore);
+    const [isCurrentMatch, setIsCurrentMatch] = useState(true);
+
+
+    const loadData = () => {
+        api.getMatch()
+            .then((match) => {
+                if (match) {
+                    setCommandsNames({ firstName: match.firstCommand, secondName: match.secondCommand });
+                    setCommandsScores({ firstScore: match.firstCommandScore, secondScore: match.secondCommandScore });
+                    setPeriod(match.period);
+                    setIsCurrentMatch(match.isRunning);
+                }
+            })
+            .catch((err) => console.log(err));
+    }
+
+    const saveDatasToStore = () => {
+        dispatch(setPeriodStore(period));
+        dispatch(setFirstNameStore(commandsNames.firstName));
+        dispatch(setSecondNameStore(commandsNames.secondName));
+    }
+
+    useEffect(() => {
+        loadData();
+        setInterval(() => {
+            loadData();
+        }, 10000);
+    }, [])
+
+    useEffect(() => {
+        saveDatasToStore();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [store])
+
     return (
         <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '50%' }}>
-            <Box sx={{ backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
-                <Typography variant="h4" align="center" gutterBottom>
-                    Период {period}
-                </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-                <Box sx={{ flexGrow: 1, backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
+            {!isCurrentMatch ?
+                <Box sx={{ backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
                     <Typography variant="h4" align="center" gutterBottom>
-                        Команда 1
-                    </Typography>
-                    <Typography variant="h3" align="center" gutterBottom>
-                        {firstCommandScore}
+                        Отсутствуют текущие матчи
                     </Typography>
                 </Box>
+                :
+                <>
+                    <Box sx={{ backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
+                        <Typography variant="h4" align="center" gutterBottom>
+                            Период {period}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+                        <Box sx={{ flexGrow: 1, backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
+                            <Typography variant="h4" align="center" gutterBottom>
+                                {commandsNames.firstName}
+                            </Typography>
+                            <Typography variant="h3" align="center" gutterBottom>
+                                {commandsScores.firstScore}
+                            </Typography>
+                        </Box>
 
-                <Box sx={{ flexGrow: 1, backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
-                    <Typography variant="h4" align="center" gutterBottom>
-                        Команда 2
-                    </Typography>
-                    <Typography variant="h3" align="center" gutterBottom>
-                        {secondCommandScore}
-                    </Typography>
-                </Box>
-
-            </Box>
+                        <Box sx={{ flexGrow: 1, backgroundColor: backColor, borderRadius: '15px', padding: '40px' }}>
+                            <Typography variant="h4" align="center" gutterBottom>
+                                {commandsNames.secondName}
+                            </Typography>
+                            <Typography variant="h3" align="center" gutterBottom>
+                                {commandsScores.secondScore}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </>}
         </Container>
     )
 }
