@@ -5,3 +5,9 @@
 ## Запуск фронтенда
 ### `npm start`
 Запуск лучше делать на любом другом порту, кроме 3000. 
+
+## Стек
+- React
+- Redux-Toolkit
+- TypeScript/JavaScript
+- MUI (Material-UI)
