@@ -9,7 +9,7 @@ import MatchResults from './components/MatchResults/MatchResults';
 
 function App() {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', marginTop: '2rem' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '90vh', marginTop: '2rem' }}>
       <Routes>
         <Route path="/" element={<Scoreboard />} />
         <Route path="/create" element={<CreateCM />} />
